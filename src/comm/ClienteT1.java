@@ -86,8 +86,9 @@ public class ClienteT1 extends Thread {
 					listener.OnMessage(msg);
 					long timeAfter = System.currentTimeMillis();
 					long time = timeAfter-timeBefore;
-					double kb = ((comando.getBytes().length)/1000);
-					double speed = ((2*kb)/(time/1000));
+//					double kb = ((comando.getBytes().length)/1000);
+//					double speed = ((2*kb)/(time/1000));
+					double speed = (((2*comando.getBytes().length)/time)/1000);
 					System.out.println("Speed: " + speed + " Kb/s");
 				}else {
 					bw.write(comando);
