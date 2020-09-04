@@ -2,16 +2,12 @@ package comm;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Calendar;
 import java.util.Scanner;
 
 public class ClienteT1 extends Thread {
@@ -69,29 +65,29 @@ public class ClienteT1 extends Thread {
 				String comando = scan.nextLine();
 				if(comando.equalsIgnoreCase("RTT")) {
 					comando = msg1024;
-					long timeBefore = System.nanoTime();
+					double timeBefore = System.currentTimeMillis();
 					bw.write(comando + "\n");
 					bw.flush();
 					String msg = br.readLine();
 					listener.OnMessage(msg);
-					long timeAfter = System.nanoTime();
-					long time = timeAfter-timeBefore;
-					System.out.println("Tiempo tomado: " + time + " ns");
+					double timeAfter = System.currentTimeMillis();
+					double time = (timeAfter-timeBefore);
+					System.out.println("Tiempo tomado: " + time + " ms");
 				}else if(comando.equalsIgnoreCase("Speed")) {
 					comando = msg8192;
-					long timeBefore = System.currentTimeMillis();
+					double timeBefore = System.currentTimeMillis();
 					bw.write(comando + "\n");
 					bw.flush();
 					String msg = br.readLine();
 					listener.OnMessage(msg);
-					long timeAfter = System.currentTimeMillis();
-					long time = timeAfter-timeBefore;
-//					double kb = ((comando.getBytes().length)/1000);
-//					double speed = ((2*kb)/(time/1000));
-					double speed = (((2*comando.getBytes().length)/time)/1000);
+					double timeAfter = System.currentTimeMillis();
+					double time = timeAfter-timeBefore;
+					double kb = ((comando.getBytes().length)/1000);
+					double speed = ((2*kb)/(time/1000));
+//					double speed = (((2*comando.getBytes().length)/time)/1000);
 					System.out.println("Speed: " + speed + " Kb/s");
 				}else {
-					bw.write(comando);
+					bw.write(comando+"\n");
 					bw.flush();
 					String msg = br.readLine();
 					listener.OnMessage(msg);
