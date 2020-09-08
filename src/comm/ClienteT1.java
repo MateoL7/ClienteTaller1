@@ -1,25 +1,19 @@
 package comm;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.util.Scanner;
+import comm.Receptor.OnMessageListener;
+
+//CLASE OBSERVADA
 
 public class ClienteT1 extends Thread {
 
 
-
+	//SINGLETON
 	private static ClienteT1 instance;
-
 	private ClienteT1() {
 
 	}
-
 	public static synchronized ClienteT1 getInstance() {
 		if(instance == null) {
 			instance = new ClienteT1();
@@ -28,86 +22,54 @@ public class ClienteT1 extends Thread {
 	}
 
 
-
+	//CONEXION
 	private Socket socket;
-
-
-
+	private String ip;
+	private int puerto;
+	private Emisor emisor;
+	private Receptor receptor;
 	public OnMessageListener listener;
+	
+	public void setPuerto(int puerto) {
+		this.puerto = puerto;
+	}
+	
 
 
 	@Override
 	public void run() {
 		try {
 			System.out.println("Enviando solicitud...");
-			socket = new Socket("127.0.0.1", 5000);
-			System.out.println("Conectados");
-
-			byte[] m1024 = new byte[1024];
-			String msg1024 = new String(m1024);
+			socket = new Socket(ip, puerto);
+			System.out.println("Solicitud aceptada");
 			
-			byte[] m8192 = new byte[8192];
-			String msg8192 = new String(m8192);
-
-			//			int bytes = msg1024.getBytes().length;
-			//			System.out.println(bytes);
-
-			OutputStream out = socket.getOutputStream();
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
-
-			Scanner scan = new Scanner(System.in);
-
-			InputStream is = socket.getInputStream();
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
-
-			while(true) {
-				System.out.println("Escribe el comando: ");
-				String comando = scan.nextLine();
-				if(comando.equalsIgnoreCase("RTT")) {
-					comando = msg1024;
-					double timeBefore = System.currentTimeMillis();
-					bw.write(comando + "\n");
-					bw.flush();
-					String msg = br.readLine();
-					listener.OnMessage(msg);
-					double timeAfter = System.currentTimeMillis();
-					double time = (timeAfter-timeBefore);
-					System.out.println("Tiempo tomado: " + time + " ms");
-				}else if(comando.equalsIgnoreCase("Speed")) {
-					comando = msg8192;
-					double timeBefore = System.currentTimeMillis();
-					bw.write(comando + "\n");
-					bw.flush();
-					String msg = br.readLine();
-					listener.OnMessage(msg);
-					double timeAfter = System.currentTimeMillis();
-					double time = timeAfter-timeBefore;
-					double kb = ((comando.getBytes().length)/1000);
-					double speed = ((2*kb)/(time/1000));
-//					double speed = (((2*comando.getBytes().length)/time)/1000);
-					System.out.println("Speed: " + speed + " Kb/s");
-				}else {
-					bw.write(comando+"\n");
-					bw.flush();
-					String msg = br.readLine();
-					listener.OnMessage(msg);
-				}
-
-			}
-
+			receptor = new Receptor(socket.getInputStream());
+			receptor.setListener(listener);
+			receptor.start();
+			
+			emisor = new Emisor(socket.getOutputStream());
+		
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void setListener(OnMessageListener listener) {
-		this.listener = listener;
+	public void setListenerOfMessages(OnMessageListener listener) {
+		 this.listener = listener;
 	}
 
-	public interface OnMessageListener{
-		public void OnMessage(String msg);
+	public Emisor getEmisor() {
+		return this.emisor;
 	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+
+//	public interface OnMessageListener{
+//		public void OnMessage(String msg);
+//	}
 
 }
 

@@ -10,7 +10,6 @@ public class LauncherCliente {
 		Application app = new Application();
 		app.init();
 		
-		while(true) {}
 	}
 
 }
